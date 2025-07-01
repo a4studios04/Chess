@@ -1,15 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline 2 Player Chess</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modern Chess Game</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Offline 2 Player Chess</h1>
-  <div id="chessboard"></div>
-  <p id="turn-indicator">White's Turn</p>
+  <div id="menu">
+    <h1>Modern Chess Game</h1>
+    <button id="pvp-btn">Player vs Player</button>
+    <button id="easy-btn">Player vs Computer (Easy)</button>
+    <button id="pro-btn">Player vs Computer (Pro)</button>
+  </div>
+
+  <div id="game" class="hidden">
+    <div id="info">
+      <span id="turn-display">White's turn</span>
+      <button id="reset-btn">Restart</button>
+    </div>
+    <div id="board"></div>
+    <audio id="move-sound" src="move.mp3"></audio>
+    <audio id="capture-sound" src="capture.mp3"></audio>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/js-chess-engine@1.4.0/dist/js-chess-engine.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
