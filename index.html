@@ -1,27 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Modern Chess Game</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="menu">
-    <h1>Modern Chess Game</h1>
-    <button id="pvp-btn">Player vs Player</button>
-    <button id="easy-btn">Player vs Computer (Easy)</button>
-    <button id="pro-btn">Player vs Computer (Pro)</button>
+  <div id="mode-popup" class="popup">
+    <h1>Choose Game Mode</h1>
+    <button onclick="startGame('pvp')">🧑‍🤝‍🧑 Player vs Player</button>
+    <button onclick="startGame('easy')">🤖 Player vs Computer (Easy)</button>
+    <button onclick="startGame('pro')">💪 Player vs Computer (Pro)</button>
   </div>
 
-  <div id="game" class="hidden">
-    <div id="info">
-      <span id="turn-display">White's turn</span>
-      <button id="reset-btn">Restart</button>
+  <div id="game-area" class="hidden">
+    <div id="status-bar">
+      <span id="turn-display">White's Turn</span>
+      <button onclick="restartGame()">🔄 Restart</button>
     </div>
-    <div id="board"></div>
-    <audio id="move-sound" src="move.mp3"></audio>
-    <audio id="capture-sound" src="capture.mp3"></audio>
+    <div id="chessboard"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/js-chess-engine@1.4.0/dist/js-chess-engine.min.js"></script>
