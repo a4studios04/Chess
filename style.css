@@ -1,75 +1,111 @@
 body {
-  font-family: 'Segoe UI', Tahoma, sans-serif;
   margin: 0;
   padding: 0;
-  background: #2f2f2f;
-  color: #eee;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: linear-gradient(135deg, #1e1e1e, #383838);
+  color: white;
   display: flex;
-  height: 100vh;
   align-items: center;
   justify-content: center;
+  height: 100vh;
   flex-direction: column;
 }
 
-button {
+.hidden {
+  display: none;
+}
+
+.popup {
+  background: #222;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  text-align: center;
+}
+
+.popup button {
   margin: 10px;
   padding: 12px 24px;
-  background: #4a90e2;
-  color: white;
-  border: none;
   font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #4CAF50;
+  color: white;
   cursor: pointer;
-  transition: background .2s;
+  transition: 0.2s ease;
 }
-button:hover { background: #357ab8; }
 
-.hidden { display: none; }
+.popup button:hover {
+  background: #45a049;
+}
 
-#game { text-align: center; }
-#info {
+#status-bar {
   margin-bottom: 10px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
+  justify-content: space-between;
+  width: 480px;
 }
 
-#board {
+#status-bar button {
+  padding: 6px 12px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#status-bar button:hover {
+  background: #1976D2;
+}
+
+#chessboard {
   width: 480px;
   height: 480px;
   display: grid;
-  grid-template: repeat(8, 1fr) / repeat(8, 1fr);
-  border: 4px solid #444;
-  box-shadow: 0 0 15px rgba(0,0,0,0.7);
-  perspective: 600px;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border: 5px solid #555;
+  box-shadow: 0 0 20px rgba(0,0,0,0.9);
 }
 
 .square {
   width: 60px;
   height: 60px;
-  font-size: 42px;
-  line-height: 60px;
-  text-align: center;
-  position: relative;
-  user-select: none;
+  font-size: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s ease;
   cursor: pointer;
-  transform: rotateY(0deg);
-  transition: background .2s, transform .3s;
 }
 
-.square:nth-child(even) { background: #f0d9b5; }
-.square:nth-child(odd) { background: #b58863; }
-
-.square.highlight {
-  box-shadow: inset 0 0 0 3px #ffeb3b;
+.light {
+  background-color: #f0d9b5;
 }
-.square.selected {
+
+.dark {
+  background-color: #b58863;
+}
+
+.selected {
+  box-shadow: inset 0 0 10px 4px yellow;
   transform: scale(1.05);
 }
-.square.captured {
-  animation: fade 0.3s forwards;
+
+.highlight {
+  background-color: #90ee90 !important;
 }
 
-@keyframes fade {
-  to { opacity: 0; transform: scale(0.5); }
+.piece {
+  transition: transform 0.2s;
+}
+
+.moved {
+  animation: pop 0.3s ease;
+}
+
+@keyframes pop {
+  0% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
