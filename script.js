@@ -1,109 +1,114 @@
-const boardEl = document.getElementById('board');
-const moveSound = document.getElementById('move-sound');
-const captureSound = document.getElementById('capture-sound');
-const turnDisplay = document.getElementById('turn-display');
-
-let gameMode = null;
-let engine = null;
-let selected = null;
-let legal = [];
-let board = null;
-
-document.getElementById('pvp-btn').onclick = () => startGame('pvp');
-document.getElementById('easy-btn').onclick = () => startGame('easy');
-document.getElementById('pro-btn').onclick = () => startGame('pro');
-document.getElementById('reset-btn').onclick = () => startGame(gameMode);
+let engine, boardState, currentMode, selected = null, legalMoves = [];
 
 function startGame(mode) {
-  gameMode = mode;
+  currentMode = mode;
   engine = new Chess.Game();
-  board = engine.exportJson();
+  boardState = engine.exportJson();
   selected = null;
+  legalMoves = [];
+
+  document.getElementById('mode-popup').classList.add('hidden');
+  document.getElementById('game-area').classList.remove('hidden');
+
   renderBoard();
-  showBoard();
+  updateTurnDisplay();
 }
 
-function showBoard() {
-  document.getElementById('menu').classList.add('hidden');
-  document.getElementById('game').classList.remove('hidden');
+function restartGame() {
+  document.getElementById('game-area').classList.add('hidden');
+  document.getElementById('mode-popup').classList.remove('hidden');
 }
 
 function renderBoard() {
+  const boardEl = document.getElementById('chessboard');
   boardEl.innerHTML = '';
-  legal = [];
-  updateTurn();
 
-  const flat = Object.entries(board)
-    .map(([pos, p]) => ({pos, piece: p}))
-    .sort((a,b) => a.pos[1] - b.pos[1] || a.pos[0].charCodeAt(0) - b.pos[0].charCodeAt(0));
-  
-  flat.forEach(({pos,piece}) => {
+  const squares = Object.entries(boardState)
+    .map(([pos, piece]) => ({pos, piece}))
+    .sort((a, b) => {
+      return (b.pos[1] - a.pos[1]) || (a.pos.charCodeAt(0) - b.pos.charCodeAt(0));
+    });
+
+  squares.forEach(({pos, piece}) => {
     const sq = document.createElement('div');
+    sq.classList.add('square');
+    sq.classList.add((pos.charCodeAt(0) + parseInt(pos[1])) % 2 === 0 ? 'light' : 'dark');
     sq.id = pos;
-    sq.className = 'square';
-    if ( /[a-h][1-8]/.test(pos) ) sq.onclick = () => selectSquare(pos);
-    sq.textContent = piece ? piece.charAt(1).toUpperCase() : '';
-    if (legal.includes(pos)) sq.classList.add('highlight');
+
+    if (legalMoves.includes(pos)) sq.classList.add('highlight');
     if (selected === pos) sq.classList.add('selected');
+
+    if (piece) {
+      sq.textContent = getUnicodePiece(piece);
+      sq.classList.add('piece');
+    }
+
+    sq.addEventListener('click', () => handleClick(pos));
     boardEl.appendChild(sq);
   });
 }
 
-function selectSquare(pos) {
+function handleClick(pos) {
   const turn = engine.turn;
-  const fromPiece = board[pos];
+  const piece = boardState[pos];
 
-  if (!selected && fromPiece && fromPiece.charAt(0) === turn) {
+  if (!selected && piece && piece[0] === turn) {
     selected = pos;
-    legal = engine.moves(pos).map(m => m.to);
+    legalMoves = engine.moves(pos).map(m => m.to);
     renderBoard();
     return;
   }
 
-  if (selected && legal.includes(pos)) {
-    const moved = engine.move({from:selected, to:pos});
-    const wasCapture = moved.captured !== undefined;
-    board = engine.exportJson();
+  if (selected && legalMoves.includes(pos)) {
+    const move = engine.move({from: selected, to: pos});
+    boardState = engine.exportJson();
 
-    animateCapture(pos, wasCapture);
-    playSound(wasCapture ? captureSound : moveSound);
+    animateMove(pos);
     selected = null;
-    legal = [];
+    legalMoves = [];
     renderBoard();
+    updateTurnDisplay();
 
-    if (!engine.isGameOver()) {
-      if (gameMode !== 'pvp' && engine.turn === 'b') {
-        window.setTimeout(AIplay, 200);
-      }
-    } else {
-      alert(engine.isCheckmate() ? `${turnDisplay.textContent} wins!` : "Game over: Draw");
+    if (engine.isGameOver()) {
+      setTimeout(() => {
+        alert(engine.isCheckmate() ? "Checkmate!" : "Draw!");
+      }, 100);
+      return;
+    }
+
+    if (currentMode !== 'pvp' && engine.turn === 'b') {
+      setTimeout(aiMove, 300);
     }
   } else {
     selected = null;
-    legal = [];
+    legalMoves = [];
     renderBoard();
   }
 }
 
-function animateCapture(to, didCap) {
-  const sq = document.getElementById(to);
-  if (didCap) sq.classList.add('captured');
-}
-
-function playSound(s) {
-  s.currentTime = 0;
-  s.play();
-}
-
-function updateTurn() {
-  turnDisplay.textContent = (engine.turn === 'w') ? "White's turn" : "Black's turn";
-}
-
-function AIplay() {
-  const depth = (gameMode === 'pro') ? 3 : 1;
-  const best = engine.aiMove(depth);
-  board = engine.exportJson();
-  animateCapture(best.to, engine.lastMove.captured);
-  playSound(engine.lastMove.captured ? captureSound : moveSound);
+function aiMove() {
+  const depth = currentMode === 'pro' ? 3 : 1;
+  const aiMove = engine.aiMove(depth);
+  boardState = engine.exportJson();
+  animateMove(aiMove.to);
   renderBoard();
+  updateTurnDisplay();
+}
+
+function animateMove(to) {
+  const targetSq = document.getElementById(to);
+  if (targetSq) targetSq.classList.add('moved');
+}
+
+function updateTurnDisplay() {
+  document.getElementById('turn-display').textContent =
+    (engine.turn === 'w') ? "White's Turn" : "Black's Turn";
+}
+
+function getUnicodePiece(piece) {
+  const symbols = {
+    'wp': '♙', 'wr': '♖', 'wn': '♘', 'wb': '♗', 'wq': '♕', 'wk': '♔',
+    'bp': '♟', 'br': '♜', 'bn': '♞', 'bb': '♝', 'bq': '♛', 'bk': '♚'
+  };
+  return symbols[piece] || '';
 }
